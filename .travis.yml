@@ -18,8 +18,9 @@ env:
     - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb
 
 before_install:
-  - sudo apt update -y && sudo apt upgrade -y
-  - wget -O ${WKHTMLTOPDF_DEB}
+  - sudo apt update -y
+  - sudo apt install wget -y
+  - wget ${WKHTMLTOPDF_DEB}
   - sudo apt install -y ./*.deb
 
 install:
