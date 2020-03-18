@@ -8,9 +8,9 @@ import io
 
 def create(head, body, footer, width, height):
     # Add UTF-8 tag and line below head text
-    head = '<meta charset="UTF-8"/><div style="height: {height}px; width: {width}px;'\
-           'position: relative;">{head}<div style="border-left: {width}px '\
-           'solid grey; height: 2px;"></div>'.format(
+    head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
+           '{width}px; position: relative;">{head}<div style="border-left: ' \
+           '{width}px solid grey; height: 2px;"></div>'.format(
                height=height - 16, width=width - 15, head=head)
     # Add line above footer text
     footer = '<div style="border-left: {width}px solid grey; height: 2px;">'\
@@ -60,7 +60,8 @@ def generate_image(head, lines, footer, width, height):
             skips += 1
         else:
             # Generate the image in correct size
-            options = {'width': max_width, 'height': max_height, 'encoding': 'UTF-8'}
+            options = {'width': max_width, 'height': max_height,
+                       'encoding': 'UTF-8'}
             image = io.BytesIO(imgkit.from_string(
                 html, False, options=options))
             images.append(image)
