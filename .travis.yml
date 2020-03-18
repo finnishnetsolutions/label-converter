@@ -11,14 +11,19 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
+
 env:
-  - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
-  - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb
+  jobs:
+    - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+    - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb
+
+before_install:
+  - sudo apt update -y && sudo apt upgrade -y
+  - wget -O ${WKHTMLTOPDF_DEB}
+  - sudo apt install -y ./*.deb
 
 install:
   - pip install tox-travis
-  - wget -O ${WKHTMLTOPDF_DEB}
-  - sudo apt install -y ./*.deb
 
 script: tox
 
