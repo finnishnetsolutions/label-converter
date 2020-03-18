@@ -1,5 +1,8 @@
 include pyproject.toml
 
+# Include TXT
+include *.txt
+
 # Include the README
 include *.md
 
