@@ -1,4 +1,4 @@
-# label_converter
+# Label converter [![Build Status](https://travis-ci.org/finnishnetsolutions/label-converter.svg?branch=master)](https://travis-ci.org/finnishnetsolutions/label-converter)
 
 ## Description
 
