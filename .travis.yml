@@ -30,3 +30,11 @@ script: tox
 
 notifications:
   email: false
+
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: "pypi-AgEIcHlwaS5vcmcCJGMzNzE2MDdhLWNhZmEtNGZiMy05ODQxLWUyNjJmYmMzNjdlMQACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgWJZrJq758iW28Dlw3FrCx8iqw0NwBBJRqBh9ylzCR5Q"
+  on:
+    tags: true
