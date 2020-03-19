@@ -1,41 +1,30 @@
-# this file is *not* meant to cover or endorse the use of travis, but rather to
-# help confirm pull requests to this project.
-
 language: python
-
 dist: xenial
-
 python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
+- '2.7'
+- '3.5'
+- '3.6'
+- '3.7'
+- '3.8'
 env:
   jobs:
-    - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
-    - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb
-
+  - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+  - WKHTMLTOPDF_DEB=https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.xenial_amd64.deb
 before_install:
-  - sudo apt update -y
-  - sudo apt install wget -y
-  - wget ${WKHTMLTOPDF_DEB}
-  - sudo apt install -y ./*.deb
-
+- sudo apt update -y
+- sudo apt install wget -y
+- wget ${WKHTMLTOPDF_DEB}
+- sudo apt install -y ./*.deb
 install:
-  - pip install tox-travis
-
+- pip install tox-travis
 script: tox
-
 notifications:
   email: false
-
 deploy:
   provider: pypi
-  user: "__token__"
+  user: __token__
   password:
-    secure: "pypi-AgEIcHlwaS5vcmcCJGMzNzE2MDdhLWNhZmEtNGZiMy05ODQxLWUyNjJmYmMzNjdlMQACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgWJZrJq758iW28Dlw3FrCx8iqw0NwBBJRqBh9ylzCR5Q"
+    secure: BFdB7RdYs7tON0HU2bria4g9a5G+Q+W+KrO5s3AD2CJ98zqMxBdWbTOwlzdKoGTaojMqEF6BVVV0KwIUVnMT4mZmBL2BL+nYDhtvGmuIkxUHw+RZF6Dmzc4FIwHsLbI7afK/y1OUrqgDSsgQH+2yf1HpWR+liWGbVzpQkAUUJEF3ufqWKA2SpExGJ85um0Gaa0yAX5pdlk37vopivE+71gaVpOpbqT+n72n7Nhk3MkcFlZY+KJOJdB/hDuLpvnnJPi16Qcf7sJu3ei675PI81hjRXfUTp4uRbjlOZBb4K56IiMhYCNq69SnN/L01EPGCaw4CpXJBYKNHx4oCSmaLxbaSDMzcQ56LUMKxq3ETUnlwvQtyI937MDSKAzo09i/xPn+hdUCZLyvmf0nU/F+9A3/U8yiyL9JPt+FhlBxAeUzFkaAhpJUlB2OkrQSrU2YAQI5j/HLiCJGX1IYhLRxoE1Bc7hlEpaQUFKBSXpeQYrJOcsr6f3TtX3W1V6xAQKQNYTimL1cZuwynNmahjco7cyVFRmB2yiEo9W5lFgG5CsbhV/dpWsIdOMqRRjTUYQvia7MjJjQ+Xvid3F78bEQVNf2emcELdaUkD1xtkI/vDMUZrFCqJbUteP2aXLga2QCP6DqUNPjbzEuD8DHkA+JH1L0D4FtH9MzR65OU7zHdqGw=
   on:
     tags: true
   skip_cleanup: true
