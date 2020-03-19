@@ -38,3 +38,5 @@ deploy:
     secure: "pypi-AgEIcHlwaS5vcmcCJGMzNzE2MDdhLWNhZmEtNGZiMy05ODQxLWUyNjJmYmMzNjdlMQACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgWJZrJq758iW28Dlw3FrCx8iqw0NwBBJRqBh9ylzCR5Q"
   on:
     tags: true
+  skip_cleanup: true
+  skip_existing: true
