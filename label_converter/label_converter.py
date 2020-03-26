@@ -23,7 +23,8 @@ def create(head, body, footer, width, height, encode_files=False):
              'style="position: absolute; bottom: 0;">{footer}</div>'.format(
                  footer=footer)
     lines = get_lines(body)
-    return generate_image(head, lines, footer, width, height, encode_files=encode_files)
+    return generate_image(head, lines, footer, width, height,
+                          encode_files=encode_files)
 
 
 def get_lines(html):
@@ -38,7 +39,7 @@ def get_lines(html):
     return lines
 
 
-def generate_image(head, lines, footer, width, height):
+def generate_image(head, lines, footer, width, height, encode_files):
     max_height = height
     max_width = width
     skips = 0
