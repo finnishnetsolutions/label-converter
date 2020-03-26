@@ -51,7 +51,7 @@ def generate_image(head, lines, footer, width, height):
             html = '{html}{line}'.format(html=html, line=lines[line])
             n += 1
         html = '{html}{footer}'.format(html=html, footer=footer)
-        options = {'width': max_width, 'encoding': 'UTF-8'}
+        options = {'width': max_width, 'encoding': 'UTF-8', 'format': 'png'}
         image = io.BytesIO(imgkit.from_string(html, False, options=options))
         im = Image.open(image)
         width, height = im.size
@@ -61,7 +61,7 @@ def generate_image(head, lines, footer, width, height):
         else:
             # Generate the image in correct size
             options = {'width': max_width, 'height': max_height,
-                       'encoding': 'UTF-8'}
+                       'encoding': 'UTF-8', 'format': 'png'}
             image = io.BytesIO(imgkit.from_string(
                 html, False, options=options))
             images.append(image)
