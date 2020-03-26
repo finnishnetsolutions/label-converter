@@ -4,9 +4,10 @@ import imgkit
 from PIL import Image
 import re
 import io
+import base64
 
 
-def create(head, body, footer, width, height):
+def create(head, body, footer, width, height, encode_files=False):
     # Add UTF-8 tag and line below head text
     head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
            '{width}px; position: relative;">{head}<div style="border-left: ' \
@@ -22,7 +23,7 @@ def create(head, body, footer, width, height):
              'style="position: absolute; bottom: 0;">{footer}</div>'.format(
                  footer=footer)
     lines = get_lines(body)
-    return generate_image(head, lines, footer, width, height)
+    return generate_image(head, lines, footer, width, height, encode_files=encode_files)
 
 
 def get_lines(html):
@@ -64,6 +65,9 @@ def generate_image(head, lines, footer, width, height):
                        'encoding': 'UTF-8', 'format': 'png'}
             image = io.BytesIO(imgkit.from_string(
                 html, False, options=options))
+            # Encode actual image in base64
+            if encode_files:
+                image = base64.b64encode(image.getvalue())
             images.append(image)
             # Uncomment to save 1 image to current folder
             # imgkit.from_string(html, 'put.png', options=options)
