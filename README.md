@@ -7,13 +7,14 @@
 ## Usage
 
 ```
-from from label_converter import label_converter
+from label_converter import label_converter
 
 header = '<p>I\'m head</p>'
 body = '<p>I\'m <strong>label</strong> <span style="font-size: 30px; color: rgb(184, 49, 47);">body</span></p>'
 footer = '<p>I\'m footer</p>
 width = 600
 height = 500
+base64_encoding = False
 
-label_converter.create(header, body, footer, width, height)
+label_converter.create(header, body, footer, width, height, base64_encoding)
 ```
