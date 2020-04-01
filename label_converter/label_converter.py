@@ -23,8 +23,8 @@ def create(head, body, footer, width, height, encode_files=False):
              'style="position: absolute; bottom: 0;">{footer}</div>'.format(
                  footer=footer)
     lines = get_lines(body)
-    return generate_image(head, lines, footer, width, height,
-                          encode_files=encode_files)
+    return generate_images(head, lines, footer, width, height,
+                           encode_files=encode_files)
 
 
 def get_lines(html):
@@ -39,7 +39,7 @@ def get_lines(html):
     return lines
 
 
-def generate_image(head, lines, footer, width, height, encode_files):
+def generate_images(head, lines, footer, width, height, encode_files):
     max_height = height
     max_width = width
     skips = 0
@@ -60,16 +60,15 @@ def generate_image(head, lines, footer, width, height, encode_files):
         # Check height
         if height > max_height:
             skips += 1
+            # Generate the image, cannot do nothing to fix fitting issue
+            if len(lines) - skips == 0:
+                images.append(generate_image(html, max_width, max_height,
+                                             encode_files))
+                return images
         else:
             # Generate the image in correct size
-            options = {'width': max_width, 'height': max_height,
-                       'encoding': 'UTF-8', 'format': 'png'}
-            image = io.BytesIO(imgkit.from_string(
-                html, False, options=options))
-            # Encode actual image in base64
-            if encode_files:
-                image = base64.b64encode(image.getvalue())
-            images.append(image)
+            images.append(generate_image(html, max_width, max_height,
+                                         encode_files))
             # Uncomment to save 1 image to current folder
             # imgkit.from_string(html, 'put.png', options=options)
             # Check if all lines are included
@@ -83,3 +82,14 @@ def generate_image(head, lines, footer, width, height, encode_files):
                     del lines[0]
                 n = 0
     return images
+
+
+def generate_image(html, max_width, max_height, encode_files):
+    options = {'width': max_width, 'height': max_height,
+               'encoding': 'UTF-8', 'format': 'png'}
+    image = io.BytesIO(imgkit.from_string(
+        html, False, options=options))
+    # Encode actual image in base64
+    if encode_files:
+        image = base64.b64encode(image.getvalue())
+    return image
