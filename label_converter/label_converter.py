@@ -22,12 +22,12 @@ def create(head, body, footer, width, height, encode_files=False):
     footer = '<div style="visibility: hidden;">{footer}</div></div><div '\
              'style="position: absolute; bottom: 0;">{footer}</div>'.format(
                  footer=footer)
-    lines = get_lines(body)
-    return generate_images(head, lines, footer, width, height,
-                           encode_files=encode_files)
+    lines = _get_lines(body)
+    return _generate_images(head, lines, footer, width, height,
+                            encode_files=encode_files)
 
 
-def get_lines(html):
+def _get_lines(html):
     # Cut body to lines/list using <p> tags. This is needded, because it's not
     #  possible to cut text with imgkit
     lines = []
@@ -39,7 +39,7 @@ def get_lines(html):
     return lines
 
 
-def generate_images(head, lines, footer, width, height, encode_files):
+def _generate_images(head, lines, footer, width, height, encode_files):
     max_height = height
     max_width = width
     skips = 0
@@ -62,13 +62,13 @@ def generate_images(head, lines, footer, width, height, encode_files):
             skips += 1
             # Generate the image, cannot do nothing to fix fitting issue
             if len(lines) - skips == 0:
-                images.append(generate_image(html, max_width, max_height,
-                                             encode_files))
+                images.append(_generate_image(html, max_width, max_height,
+                              encode_files))
                 return images
         else:
             # Generate the image in correct size
-            images.append(generate_image(html, max_width, max_height,
-                                         encode_files))
+            images.append(_generate_image(html, max_width, max_height,
+                          encode_files))
             # Uncomment to save 1 image to current folder
             # imgkit.from_string(html, 'put.png', options=options)
             # Check if all lines are included
@@ -84,7 +84,7 @@ def generate_images(head, lines, footer, width, height, encode_files):
     return images
 
 
-def generate_image(html, max_width, max_height, encode_files):
+def _generate_image(html, max_width, max_height, encode_files):
     options = {'width': max_width, 'height': max_height,
                'encoding': 'UTF-8', 'format': 'png'}
     image = io.BytesIO(imgkit.from_string(
