@@ -1,13 +1,15 @@
 # coding=utf-8
 from __future__ import unicode_literals
 import imgkit
+import numpy as np
 from PIL import Image
 import re
 import io
 import base64
 
 
-def create(head, body, footer, width, height, encode_files=False):
+def create(head, body, footer, width, height, encode_files=False,
+           force_black=True):
     # Add UTF-8 tag and line below head text
     head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
            '{width}px; position: relative;">{head}<div style="border-left: ' \
@@ -24,7 +26,7 @@ def create(head, body, footer, width, height, encode_files=False):
                  footer=footer)
     lines = get_lines(body)
     return generate_images(head, lines, footer, width, height,
-                           encode_files=encode_files)
+                           encode_files=encode_files, force_black=force_black)
 
 
 def get_lines(html):
@@ -39,7 +41,8 @@ def get_lines(html):
     return lines
 
 
-def generate_images(head, lines, footer, width, height, encode_files):
+def generate_images(head, lines, footer, width, height, encode_files,
+                    force_black):
     max_height = height
     max_width = width
     skips = 0
@@ -53,7 +56,8 @@ def generate_images(head, lines, footer, width, height, encode_files):
             html = '{html}{line}'.format(html=html, line=lines[line])
             n += 1
         html = '{html}{footer}'.format(html=html, footer=footer)
-        options = {'width': max_width, 'encoding': 'UTF-8', 'format': 'png'}
+        options = {'width': max_width, 'encoding': 'UTF-8', 'format': 'png',
+                   'quiet': ''}
         image = io.BytesIO(imgkit.from_string(html, False, options=options))
         im = Image.open(image)
         width, height = im.size
@@ -63,12 +67,12 @@ def generate_images(head, lines, footer, width, height, encode_files):
             # Generate the image, cannot do nothing to fix fitting issue
             if len(lines) - skips == 0:
                 images.append(generate_image(html, max_width, max_height,
-                                             encode_files))
+                                             encode_files, force_black))
                 return images
         else:
             # Generate the image in correct size
             images.append(generate_image(html, max_width, max_height,
-                                         encode_files))
+                                         encode_files, force_black))
             # Uncomment to save 1 image to current folder
             # imgkit.from_string(html, 'put.png', options=options)
             # Check if all lines are included
@@ -84,12 +88,26 @@ def generate_images(head, lines, footer, width, height, encode_files):
     return images
 
 
-def generate_image(html, max_width, max_height, encode_files):
-    options = {'width': max_width, 'height': max_height,
+def generate_image(html, max_width, max_height, encode_files,
+                   force_black=True):
+    options = {'width': max_width * 2, 'height': max_height * 2,
+               'quiet': '', 'zoom': 2,
                'encoding': 'UTF-8', 'format': 'png'}
-    image = io.BytesIO(imgkit.from_string(
-        html, False, options=options))
+    image = imgkit.from_string(html, False, options=options)
+    image = io.BytesIO(image)
+    if force_black:
+        new_image = force_black_and_white(image)
+        image = io.BytesIO()
+        new_image.save(image, "PNG")
     # Encode actual image in base64
     if encode_files:
         image = base64.b64encode(image.getvalue())
     return image
+
+
+def force_black_and_white(image):
+    image = Image.open(image)
+    data = np.asarray(image)
+    new_data = np.where(data > 200, 255, 0)
+    new_image = Image.fromarray(new_data.astype(np.uint8))
+    return new_image
