@@ -57,7 +57,7 @@ def generate_images(head, lines, footer, width, height, encode_files,
             n += 1
         html = '{html}{footer}'.format(html=html, footer=footer)
         options = {'width': max_width, 'encoding': 'UTF-8', 'format': 'png',
-                   'quiet': ''}
+                   'quiet': '', 'quality': 90}
         image = io.BytesIO(imgkit.from_string(html, False, options=options))
         im = Image.open(image)
         width, height = im.size
@@ -90,8 +90,8 @@ def generate_images(head, lines, footer, width, height, encode_files,
 
 def generate_image(html, max_width, max_height, encode_files,
                    force_black=True):
-    options = {'width': max_width * 2, 'height': max_height * 2,
-               'quiet': '', 'zoom': 2,
+    options = {'width': max_width * 4, 'height': max_height * 4,
+               'quiet': '', 'zoom': 4, 'quality': 90,
                'encoding': 'UTF-8', 'format': 'png'}
     image = imgkit.from_string(html, False, options=options)
     image = io.BytesIO(image)

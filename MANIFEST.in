@@ -1,5 +1,7 @@
 include pyproject.toml
 
+include *.py
+
 # Include TXT
 include *.txt
 
