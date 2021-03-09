@@ -27,7 +27,7 @@ def create(head, body, footer, width, height, encode_files=False,
     lines = get_lines(body)
     return generate_images(head, lines, footer, width, height,
                            encode_files=encode_files, force_black=force_black,
-                           zoom=1)
+                           zoom=zoom)
 
 
 def get_lines(html):
