@@ -9,7 +9,7 @@ import base64
 
 
 def create(head, body, footer, width, height, encode_files=False,
-           force_black=True):
+           force_black=True, zoom=1):
     # Add UTF-8 tag and line below head text
     head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
            '{width}px; position: relative;">{head}<div style="border-left: ' \
@@ -26,7 +26,8 @@ def create(head, body, footer, width, height, encode_files=False,
                  footer=footer)
     lines = get_lines(body)
     return generate_images(head, lines, footer, width, height,
-                           encode_files=encode_files, force_black=force_black)
+                           encode_files=encode_files, force_black=force_black,
+                           zoom=1)
 
 
 def get_lines(html):
@@ -42,7 +43,7 @@ def get_lines(html):
 
 
 def generate_images(head, lines, footer, width, height, encode_files,
-                    force_black):
+                    force_black, zoom):
     max_height = height
     max_width = width
     skips = 0
@@ -67,12 +68,12 @@ def generate_images(head, lines, footer, width, height, encode_files,
             # Generate the image, cannot do nothing to fix fitting issue
             if len(lines) - skips == 0:
                 images.append(generate_image(html, max_width, max_height,
-                                             encode_files, force_black))
+                                             encode_files, force_black, zoom))
                 return images
         else:
             # Generate the image in correct size
             images.append(generate_image(html, max_width, max_height,
-                                         encode_files, force_black))
+                                         encode_files, force_black, zoom))
             # Uncomment to save 1 image to current folder
             # imgkit.from_string(html, 'put.png', options=options)
             # Check if all lines are included
@@ -89,9 +90,9 @@ def generate_images(head, lines, footer, width, height, encode_files,
 
 
 def generate_image(html, max_width, max_height, encode_files,
-                   force_black=True):
-    options = {'width': max_width * 4, 'height': max_height * 4,
-               'quiet': '', 'zoom': 4, 'quality': 90,
+                   force_black=True, zoom=1):
+    options = {'width': max_width * zoom, 'height': max_height * zoom,
+               'quiet': '', 'zoom': zoom, 'quality': 90,
                'encoding': 'UTF-8', 'format': 'png'}
     image = imgkit.from_string(html, False, options=options)
     image = io.BytesIO(image)
