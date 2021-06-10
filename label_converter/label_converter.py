@@ -8,16 +8,36 @@ import io
 import base64
 
 
+def is_empty(value):
+    if value:
+        if isinstance(value, (str, unicode)):
+            return len(value.strip()) == 0
+    return True
+
+
+def get_border_height(value):
+    if is_empty(value):
+        return "0"
+    return "2px"
+
+
 def create(head, body, footer, width, height, encode_files=False,
            force_black=True, zoom=1):
     # Add UTF-8 tag and line below head text
     head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
            '{width}px; position: relative;">{head}<div style="border-left: ' \
-           '{width}px solid grey; height: 2px;"></div>'.format(
-               height=height - 16, width=width - 15, head=head)
+           '{width}px solid grey; height: {border};"></div>'.format(
+        height=height - 16,
+        width=width - 15, head=head,
+        border=get_border_height(head)
+    )
     # Add line above footer text
-    footer = '<div style="border-left: {width}px solid grey; height: 2px;">'\
-             '</div>{footer}'.format(width=width - 15, footer=footer)
+    footer = '<div style="border-left: {width}px solid grey; height: {border};">' \
+             '</div>{footer}'.format(
+        width=width - 15,
+        footer=footer,
+        border=get_border_height(footer)
+    )
     # Create actual footer. This just creates normal invisble footer and actual
     #  footer is put to the bottom with absolute. Otherwise body could overlap
     #  with footer and checking image size doesn't notice that
