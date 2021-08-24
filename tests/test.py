@@ -42,11 +42,11 @@ def test_create_encode_true_black_false():
     data = label_converter.create(HEADER, BODY, FOOTER, 600, 400,
                                   encode_files=True, force_black=False)
     assert len(data) == 1
-    assert isinstance(data[0], str)
+    assert isinstance(data[0], bytes)
 
 
 def test_create_encode_true_black_true():
     data = label_converter.create(HEADER, BODY, FOOTER, 600, 400,
                                   encode_files=True, force_black=True)
     assert len(data) == 1
-    assert isinstance(data[0], str)
+    assert isinstance(data[0], bytes)
