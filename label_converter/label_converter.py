@@ -68,7 +68,7 @@ def generate_images(head, lines, footer, width, height, encode_files,
     img_count = 0
     images = []
     # Generate as many images as necessary
-    while True:
+    for _ in range(100):
         n = 0
         html = head
         for line in range(0, len(lines) - skips):
@@ -84,7 +84,7 @@ def generate_images(head, lines, footer, width, height, encode_files,
         if height > max_height:
             skips += 1
             # Generate the image, cannot do nothing to fix fitting issue
-            if len(lines) - skips == 0:
+            if len(lines) - skips <= 0:
                 images.append(generate_image(html, max_width, max_height,
                                              encode_files, force_black, zoom))
                 return images
