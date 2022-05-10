@@ -80,10 +80,22 @@ def generate_images(head, lines, footer, width, height, encode_files,
         image = io.BytesIO(imgkit.from_string(html, False, options=options))
         im = Image.open(image)
         width, height = im.size
+
         # Check height
         if height > max_height:
             skips += 1
             # Generate the image, cannot do nothing to fix fitting issue
+            # Generate the image, don't skip the rest when the height exceeds the max height
+            if height_on_one_line_exceed_max_height(len(lines), skips):
+                images.append(generate_image(html, max_width, max_height,
+                                             encode_files, force_black, zoom))
+
+                skips = 0
+                img_count += 1
+                for line in range(0, n):
+                    del lines[0]
+                n = 0
+
             if len(lines) - skips <= 0:
                 images.append(generate_image(html, max_width, max_height,
                                              encode_files, force_black, zoom))
@@ -104,7 +116,15 @@ def generate_images(head, lines, footer, width, height, encode_files,
                 for line in range(0, n):
                     del lines[0]
                 n = 0
+
     return images
+
+def height_on_one_line_exceed_max_height(line_count, skips):
+    """
+    Helper method to identify the height of a line based on skipped lines and
+    the number of lines
+    """
+    return line_count - skips == 0 and line_count > 1
 
 
 def generate_image(html, max_width, max_height, encode_files,
