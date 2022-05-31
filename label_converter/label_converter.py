@@ -4,6 +4,8 @@ from PIL import Image
 import re
 import io
 import base64
+from lxml import etree
+import xml.etree.ElementTree as ET
 
 
 def is_empty(value):
@@ -126,12 +128,26 @@ def height_on_one_line_exceed_max_height(line_count, skips):
     """
     return line_count - skips == 0 and line_count > 1
 
+def update_svg_size(html, max_width, max_height):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    p_tag = tree.find('.//p')
+    svgs = tree.findall('.//svg')
+    if svgs:
+        for svg in svgs:
+            min_max_width_height = min(max_width, max_height)
+            width_height = min_max_width_height - 0.15*min_max_width_height
+            svg.attrib['width'] = str(width_height)
+            svg.attrib['height'] = str(width_height)
+        p_tag = ET.tostring(p_tag, encoding='utf8')
+        return p_tag.decode("utf-8")
+    return html
 
 def generate_image(html, max_width, max_height, encode_files,
                    force_black=True, zoom=1):
     options = {'width': max_width * zoom, 'height': max_height * zoom,
                'quiet': '', 'zoom': zoom, 'quality': 90,
                'encoding': 'UTF-8', 'format': 'png'}
+    html = update_svg_size(html, max_width, max_height)
     image = imgkit.from_string(html, False, options=options)
     image = io.BytesIO(image)
     if force_black:
