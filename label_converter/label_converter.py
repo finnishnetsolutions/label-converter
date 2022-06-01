@@ -71,7 +71,7 @@ def estimate_size(html, options):
 def estimate_header_size(html, options):
     tree = etree.fromstring(html, etree.HTMLParser())
     p_tag = tree.findall('.//p')
-    if p_tag and p_tag[0].find('..'):
+    if len(p_tag) > 0 and p_tag[0].find('..') is not None:
         p_tag[0].find('..').attrib.clear()
         p_tags_str = ET.tostring(p_tag[0].find('..')).decode()
         return estimate_size(p_tags_str, options)
