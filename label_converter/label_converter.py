@@ -25,16 +25,16 @@ def create(head, body, footer, width, height, encode_files=False,
            force_black=True, zoom=1):
     # Add UTF-8 tag and line below head text
     head = '<meta charset="UTF-8"/><div style="height: {height}px; width: ' \
-           '{width}px; position: relative;">{head}<div style="border-left: ' \
-           '{width}px solid grey; height: {border};"></div>'.format(
+           '{width}px; position: relative;">{head}<div style="display: block; ' \
+           'width: {width}px; height: {border};background: grey;"></div>'.format(
         height=height - 16,
-        width=width - 15, head=head,
+        width=width-15, head=head,
         border=get_border_height(head)
     )
     # Add line above footer text
-    footer = '<div style="border-left: {width}px solid grey; height: {border};">' \
+    footer = '<div style="display: block; width: {width}px; height: {border};background: grey;">' \
              '</div>{footer}'.format(
-        width=width - 15,
+        width=width-15,
         footer=footer,
         border=get_border_height(footer)
     )
@@ -61,6 +61,17 @@ def get_lines(html):
         html = html[match.end():]
     return lines
 
+def estimate_size(html, options):
+    image = io.BytesIO(imgkit.from_string(html, False, options=options))
+    im = Image.open(image)
+    return im.size
+
+def estimate_header_size(html, options):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    p_tag = tree.findall('.//p')
+    p_tag[0].find('..').attrib.clear()
+    p_tags_str = ET.tostring(p_tag[0].find('..')).decode()
+    return estimate_size(p_tags_str, options)
 
 def generate_images(head, lines, footer, width, height, encode_files,
                     force_black, zoom):
@@ -73,12 +84,19 @@ def generate_images(head, lines, footer, width, height, encode_files,
     for _ in range(100):
         n = 0
         html = head
-        for line in range(0, len(lines) - skips):
-            html = '{html}{line}'.format(html=html, line=lines[line])
-            n += 1
-        html = '{html}{footer}'.format(html=html, footer=footer)
+
         options = {'width': max_width, 'encoding': 'UTF-8', 'format': 'png',
                    'quiet': '', 'quality': 90}
+
+        header_size = estimate_header_size(head, options)
+        footer_size = estimate_size(footer, options)
+
+        for line in range(0, len(lines) - skips):
+            html = '{html}{line}'.format(html=html, line=lines[line])
+            html = update_svg_size(html, max_width, max_height, header_size, footer_size)
+            n += 1
+        html = '{html}{footer}'.format(html=html, footer=footer)
+
         image = io.BytesIO(imgkit.from_string(html, False, options=options))
         im = Image.open(image)
         width, height = im.size
@@ -88,20 +106,13 @@ def generate_images(head, lines, footer, width, height, encode_files,
             skips += 1
             # Generate the image, cannot do nothing to fix fitting issue
             # Generate the image, don't skip the rest when the height exceeds the max height
-            if height_on_one_line_exceed_max_height(len(lines), skips):
-                images.append(generate_image(html, max_width, max_height,
-                                             encode_files, force_black, zoom))
-
-                skips = 0
-                img_count += 1
-                for line in range(0, n):
-                    del lines[0]
-                n = 0
-
-            if len(lines) - skips <= 0:
-                images.append(generate_image(html, max_width, max_height,
-                                             encode_files, force_black, zoom))
-                return images
+            if height > max_height:
+                skips += 1
+                # Generate the image, cannot do nothing to fix fitting issue
+                if len(lines) - skips <= 0:
+                    images.append(generate_image(html, max_width, max_height,
+                                                 encode_files, force_black, zoom))
+                    return images
         else:
             # Generate the image in correct size
             images.append(generate_image(html, max_width, max_height,
@@ -128,26 +139,31 @@ def height_on_one_line_exceed_max_height(line_count, skips):
     """
     return line_count - skips == 0 and line_count > 1
 
-def update_svg_size(html, max_width, max_height):
+def update_svg_size(html, max_width, max_height, header_size, footer_size):
     tree = etree.fromstring(html, etree.HTMLParser())
     p_tag = tree.find('.//p')
     svgs = tree.findall('.//svg')
+
+    def abs_size(size):
+        return 10 if size <= 0 else size
+
     if svgs:
         for svg in svgs:
-            min_max_width_height = min(max_width, max_height)
-            width_height = min_max_width_height - 0.15*min_max_width_height
+            min_max_width_height = min(
+                abs_size(max_width), abs_size(max_height-footer_size[1]-header_size[1])
+            )
+            width_height = min_max_width_height
             svg.attrib['width'] = str(width_height)
             svg.attrib['height'] = str(width_height)
-        p_tag = ET.tostring(p_tag, encoding='utf8')
-        return p_tag.decode("utf-8")
+        return ET.tostring(tree).decode()
     return html
+
 
 def generate_image(html, max_width, max_height, encode_files,
                    force_black=True, zoom=1):
     options = {'width': max_width * zoom, 'height': max_height * zoom,
                'quiet': '', 'zoom': zoom, 'quality': 90,
                'encoding': 'UTF-8', 'format': 'png'}
-    html = update_svg_size(html, max_width, max_height)
     image = imgkit.from_string(html, False, options=options)
     image = io.BytesIO(image)
     if force_black:
