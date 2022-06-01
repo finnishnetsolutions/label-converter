@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='label_converter',
-    version='0.12',
+    version='0.13',
     author="Miika Launiainen",
     author_email="miika.launiainen@fns.fi",
     description="HTML to label png converter",
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/finnishnetsolutions/label-converter",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
