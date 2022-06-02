@@ -61,17 +61,23 @@ def get_lines(html):
         html = html[match.end():]
     return lines
 
+
 def estimate_size(html, options):
     image = io.BytesIO(imgkit.from_string(html, False, options=options))
     im = Image.open(image)
     return im.size
 
+
 def estimate_header_size(html, options):
     tree = etree.fromstring(html, etree.HTMLParser())
     p_tag = tree.findall('.//p')
-    p_tag[0].find('..').attrib.clear()
-    p_tags_str = ET.tostring(p_tag[0].find('..')).decode()
-    return estimate_size(p_tags_str, options)
+    if len(p_tag) > 0 and p_tag[0].find('..') is not None:
+        p_tag[0].find('..').attrib.clear()
+        p_tags_str = ET.tostring(p_tag[0].find('..')).decode()
+        return estimate_size(p_tags_str, options)
+    else:
+        return (0, 0)
+
 
 def generate_images(head, lines, footer, width, height, encode_files,
                     force_black, zoom):
@@ -132,12 +138,6 @@ def generate_images(head, lines, footer, width, height, encode_files,
 
     return images
 
-def height_on_one_line_exceed_max_height(line_count, skips):
-    """
-    Helper method to identify the height of a line based on skipped lines and
-    the number of lines
-    """
-    return line_count - skips == 0 and line_count > 1
 
 def update_svg_size(html, max_width, max_height, header_size, footer_size):
     tree = etree.fromstring(html, etree.HTMLParser())
