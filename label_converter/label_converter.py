@@ -5,6 +5,7 @@ import re
 import io
 import base64
 from lxml import etree
+from lxml import html as lhtml
 import xml.etree.ElementTree as ET
 
 
@@ -98,8 +99,10 @@ def generate_images(head, lines, footer, width, height, encode_files,
         footer_size = estimate_size(footer, options)
 
         for line in range(0, len(lines) - skips):
-            html = '{html}{line}'.format(html=html, line=lines[line])
-            html = update_svg_size(html, max_width, max_height, header_size, footer_size)
+            line_str = update_svg_size(lines[line], max_width, max_height, header_size,
+                                   footer_size)
+            html = '{html}{line}'.format(html=html, line=line_str)
+
             n += 1
         html = '{html}{footer}'.format(html=html, footer=footer)
 
@@ -111,14 +114,10 @@ def generate_images(head, lines, footer, width, height, encode_files,
         if height > max_height:
             skips += 1
             # Generate the image, cannot do nothing to fix fitting issue
-            # Generate the image, don't skip the rest when the height exceeds the max height
-            if height > max_height:
-                skips += 1
-                # Generate the image, cannot do nothing to fix fitting issue
-                if len(lines) - skips <= 0:
-                    images.append(generate_image(html, max_width, max_height,
-                                                 encode_files, force_black, zoom))
-                    return images
+            if len(lines) - skips <= 0:
+                images.append(generate_image(html, max_width, max_height,
+                                             encode_files, force_black, zoom))
+                return images
         else:
             # Generate the image in correct size
             images.append(generate_image(html, max_width, max_height,
@@ -135,26 +134,41 @@ def generate_images(head, lines, footer, width, height, encode_files,
                 for line in range(0, n):
                     del lines[0]
                 n = 0
-
     return images
 
 
 def update_svg_size(html, max_width, max_height, header_size, footer_size):
-    tree = etree.fromstring(html, etree.HTMLParser())
-    p_tag = tree.find('.//p')
+    tree = lhtml.fromstring(html)
     svgs = tree.findall('.//svg')
+
+    options = {
+        'width': max_width, 'encoding': 'UTF-8', 'format': 'png', 'quiet': '', 'quality': 90
+    }
+
+    def estimate_paragraph_img_size_without_svg():
+        p_tag_copy = lhtml.fromstring(html)
+        svgs_copy = p_tag_copy.findall('.//svg')
+        for svg in svgs_copy:
+            parent = svg.find("..")
+            parent.remove(svg)
+
+        return estimate_size(ET.tostring(p_tag_copy).decode(), options)
 
     def abs_size(size):
         return 10 if size <= 0 else size
 
     if svgs:
+        additional_elem_size = estimate_paragraph_img_size_without_svg()
+        min_max_width_height = min(
+            abs_size(max_width),
+            abs_size(max_height - footer_size[1] - header_size[1] - additional_elem_size[1])
+        )
+        width_height = min_max_width_height - 0.1 * min_max_width_height
+
         for svg in svgs:
-            min_max_width_height = min(
-                abs_size(max_width), abs_size(max_height-footer_size[1]-header_size[1])
-            )
-            width_height = min_max_width_height
             svg.attrib['width'] = str(width_height)
             svg.attrib['height'] = str(width_height)
+
         return ET.tostring(tree).decode()
     return html
 
