@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='label_converter',
-    version='0.14',
+    version='0.15',
     author="Miika Launiainen",
     author_email="miika.launiainen@fns.fi",
     description="HTML to label png converter",
